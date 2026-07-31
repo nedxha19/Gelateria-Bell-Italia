@@ -1,0 +1,669 @@
+/* =========================================================================
+   Gelateria Bell'Italia — header, primary navigation & mobile drawer
+   -------------------------------------------------------------------------
+   Self-contained. Load this AFTER assets/css/main.css.
+
+   It deliberately uses its own `gm-` namespace so it never fights the
+   template's `.header / .primary-header / .mean-*` specificity chains.
+   Those old rules simply stop matching once the markup is replaced.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. Tokens
+   ---------------------------------------------------------------------- */
+:root {
+  /* --- Palette -------------------------------------------------------- */
+  /* Warm cream ("panna") replaces the cool greige #CDC9C4, which dulled
+     the logo's greens and reds and read as grey/industrial on a food site. */
+  --gm-cream: #faf5ec;
+  --gm-cream-2: #f4ebdb;
+  --gm-line: #e7dcc8;
+
+  /* Espresso, pulled from the logo's script lettering. Carries the nav so
+     green is reserved exclusively for the call to action. */
+  --gm-espresso: #4a3728;
+  --gm-espresso-ink: #33251a;
+  --gm-muted: #7a6a5c;
+
+  /* Tricolore. Both pass WCAG AA against white text (6.2:1 and 5.9:1). */
+  --gm-green: #0f7038;
+  --gm-green-dark: #0a5429;
+  --gm-red: #c8102e;
+  --gm-red-dark: #a20d25;
+
+  --gm-white: #ffffff;
+
+  /* --- Metrics -------------------------------------------------------- */
+  --gm-header-h: 88px;   /* reserved space at the top of the document      */
+  --gm-header-h-lg: 88px;/* header height at rest                          */
+  --gm-header-h-sm: 72px;/* header height once scrolled                    */
+  --gm-logo-h: 64px;
+  --gm-logo-h-sm: 52px;
+  --gm-gutter: clamp(16px, 4vw, 40px);
+  --gm-shell: 1600px;
+  --gm-pill: 999px;
+  --gm-tap: 44px;        /* minimum comfortable touch target               */
+
+  /* --- Type ----------------------------------------------------------- */
+  --gm-font-display: "Cal Sans", Georgia, serif;
+  --gm-font-body: "Golos Text", system-ui, -apple-system, sans-serif;
+
+  /* --- Motion --------------------------------------------------------- */
+  --gm-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --gm-dur: 0.26s;
+  --gm-dur-slow: 0.38s;
+
+  /* --- Stacking ------------------------------------------------------- */
+  --gm-z-header: 1000;
+  --gm-z-scrim: 1010;
+  --gm-z-drawer: 1020;
+}
+
+@media (max-width: 991.98px) {
+  :root {
+    --gm-header-h: 68px;
+    --gm-header-h-lg: 68px;
+    --gm-header-h-sm: 62px;
+    --gm-logo-h: 46px;
+    --gm-logo-h-sm: 42px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   2. Document offset
+   The header is fixed, so the document reserves its height once. This
+   replaces the old JS that measured the header and wrote an inline height.
+   ---------------------------------------------------------------------- */
+body {
+  padding-top: var(--gm-header-h);
+}
+
+/* The template's hero and page headers were padded to sit *under* a
+   transparent overlay header. The header is now opaque, so recover the
+   space instead of double-counting it. */
+.slider-content-wrap {
+  padding-top: clamp(90px, 12vw, 190px);
+}
+
+.page-header .page-header-content {
+  padding-top: clamp(60px, 8vw, 96px);
+  padding-bottom: clamp(56px, 7vw, 90px);
+}
+
+.hero-wrap-2,
+.hero-wrap-6,
+.hero-wrap-7,
+.hero-wrap-8 {
+  padding-top: clamp(56px, 8vw, 120px);
+}
+
+/* Scroll lock while the drawer is open. */
+html.gm-locked,
+html.gm-locked body {
+  overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------
+   3. Header shell
+   ---------------------------------------------------------------------- */
+.gm-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: var(--gm-z-header);
+  height: var(--gm-header-h-lg);
+  background-color: var(--gm-cream);
+  border-bottom: 1px solid var(--gm-line);
+  transition: height var(--gm-dur) var(--gm-ease),
+              box-shadow var(--gm-dur) var(--gm-ease),
+              background-color var(--gm-dur) var(--gm-ease);
+}
+
+.gm-header.is-scrolled {
+  height: var(--gm-header-h-sm);
+  box-shadow: 0 6px 24px -12px rgba(74, 55, 40, 0.28);
+}
+
+.gm-header__inner {
+  height: 100%;
+  max-width: var(--gm-shell);
+  margin-inline: auto;
+  padding-inline: var(--gm-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 3vw, 48px);
+}
+
+/* --- Brand --------------------------------------------------------------
+   The logo is a round badge, so height is the binding dimension, not width.
+   Sizing on height keeps the badge optically level with the nav row. */
+.gm-brand {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  border-radius: var(--gm-pill);
+}
+
+.gm-brand img {
+  display: block;
+  width: auto;
+  height: var(--gm-logo-h);
+  transition: height var(--gm-dur) var(--gm-ease);
+}
+
+.gm-header.is-scrolled .gm-brand img {
+  height: var(--gm-logo-h-sm);
+}
+
+/* -------------------------------------------------------------------------
+   4. Primary navigation (desktop)
+   ---------------------------------------------------------------------- */
+.gm-nav {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.gm-nav__list {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2.4vw, 38px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gm-nav__link {
+  position: relative;
+  display: inline-block;
+  padding: 8px 0;
+  font-family: var(--gm-font-display);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--gm-espresso);
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
+  transition: color var(--gm-dur) var(--gm-ease);
+}
+
+/* Underline anchored to the link box, not to a hard-coded `bottom: 30px`,
+   so it survives any future change to the header height or padding. */
+.gm-nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform var(--gm-dur) var(--gm-ease);
+}
+
+.gm-nav__link:hover,
+.gm-nav__link:focus-visible {
+  color: var(--gm-red);
+}
+
+.gm-nav__link:hover::after,
+.gm-nav__link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.gm-nav__item.is-active .gm-nav__link {
+  color: var(--gm-red);
+}
+
+.gm-nav__item.is-active .gm-nav__link::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+@media (max-width: 991.98px) {
+  .gm-nav {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   5. Actions — call to action + menu toggle
+   ---------------------------------------------------------------------- */
+.gm-header__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: var(--gm-tap);
+  padding: 12px 26px;
+  border: 0;
+  border-radius: var(--gm-pill);
+  /* Liquid fill: red rises in from the bottom on hover instead of a flat
+     colour cross-fade. Same --p/--t technique as .gmenu-tab's liquid select
+     state (assets/css/gelateria-menu.css) — a 200%-wide gradient whose
+     position and height both key off --p, with --t timed so the (invisible,
+     zero-height) slide finishes before the height starts growing. That
+     ordering is what keeps the reveal reading as a vertical rise rather than
+     a diagonal slide. Green stays the button's real background-color the
+     whole time, so it's still what renders wherever the red hasn't reached. */
+  background: var(--gm-green) linear-gradient(var(--gm-red) 0 0) no-repeat
+              calc(200% - var(--p, 0%)) 100% / 200% var(--p, 0%);
+  color: var(--gm-white);
+  font-family: var(--gm-font-display);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--gm-dur) var(--t, 0s),
+              background-position var(--gm-dur) calc(var(--gm-dur) - var(--t, 0s)),
+              transform 0.16s var(--gm-ease),
+              box-shadow var(--gm-dur) var(--gm-ease);
+}
+
+.gm-btn:hover,
+.gm-btn:focus-visible {
+  --p: 100%;
+  --t: var(--gm-dur);
+  color: var(--gm-white);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -12px rgba(200, 16, 46, 0.7);
+}
+
+.gm-btn:active {
+  transform: translateY(0);
+  background-image: linear-gradient(var(--gm-red-dark) 0 0);
+  box-shadow: none;
+}
+
+.gm-btn__icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
+@media (max-width: 575.98px) {
+  .gm-btn--cta {
+    padding: 11px 18px;
+    font-size: 15px;
+  }
+  .gm-btn--cta .gm-btn__icon {
+    display: none;
+  }
+}
+
+/* --- Menu toggle ---------------------------------------------------------
+   Was a 56px circle with a white icon on 13% white — effectively invisible
+   on a light bar. It is now an outlined espresso button, and it only exists
+   below 992px, where it is the only way to reach the navigation. */
+.gm-nav-toggle {
+  display: none;
+  width: var(--gm-tap);
+  height: var(--gm-tap);
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gm-line);
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--gm-espresso);
+  cursor: pointer;
+  transition: background-color var(--gm-dur) var(--gm-ease),
+              border-color var(--gm-dur) var(--gm-ease);
+}
+
+.gm-nav-toggle:hover {
+  background-color: var(--gm-cream-2);
+  border-color: var(--gm-espresso);
+}
+
+@media (max-width: 991.98px) {
+  .gm-nav-toggle {
+    display: inline-flex;
+  }
+}
+
+.gm-nav-toggle__bars {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 14px;
+}
+
+.gm-nav-toggle__bars span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background-color: currentColor;
+  transition: transform var(--gm-dur) var(--gm-ease),
+              opacity 0.15s linear;
+}
+
+.gm-nav-toggle__bars span:nth-child(1) { top: 0; }
+.gm-nav-toggle__bars span:nth-child(2) { top: 6px; }
+.gm-nav-toggle__bars span:nth-child(3) { top: 12px; }
+
+.gm-nav-toggle[aria-expanded="true"] .gm-nav-toggle__bars span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.gm-nav-toggle[aria-expanded="true"] .gm-nav-toggle__bars span:nth-child(2) {
+  opacity: 0;
+}
+.gm-nav-toggle[aria-expanded="true"] .gm-nav-toggle__bars span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* -------------------------------------------------------------------------
+   6. Scrim
+   ---------------------------------------------------------------------- */
+.gm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gm-z-scrim);
+  background-color: rgba(43, 30, 20, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--gm-dur-slow) var(--gm-ease),
+              visibility var(--gm-dur-slow) var(--gm-ease);
+}
+
+.gm-scrim.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* -------------------------------------------------------------------------
+   7. Drawer
+   ---------------------------------------------------------------------- */
+.gm-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: var(--gm-z-drawer);
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  width: min(380px, 88vw);
+  padding: 18px var(--gm-gutter) calc(28px + env(safe-area-inset-bottom, 0px));
+  background-color: var(--gm-cream);
+  border-left: 1px solid var(--gm-line);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform var(--gm-dur-slow) var(--gm-ease),
+              visibility var(--gm-dur-slow) var(--gm-ease);
+}
+
+.gm-drawer.is-open {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+.gm-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--gm-header-h-sm);
+}
+
+.gm-drawer__brand img {
+  display: block;
+  width: auto;
+  height: 52px;
+}
+
+.gm-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--gm-tap);
+  height: var(--gm-tap);
+  padding: 0;
+  border: 1px solid var(--gm-line);
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--gm-espresso);
+  cursor: pointer;
+  transition: background-color var(--gm-dur) var(--gm-ease),
+              border-color var(--gm-dur) var(--gm-ease);
+}
+
+.gm-drawer__close:hover {
+  background-color: var(--gm-cream-2);
+  border-color: var(--gm-espresso);
+}
+
+.gm-drawer__close svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+}
+
+/* --- Drawer navigation (mirrored from the header by JS) --- */
+.gm-drawer__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--gm-line);
+}
+
+.gm-drawer__item {
+  border-bottom: 1px solid var(--gm-line);
+}
+
+.gm-drawer__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  padding: 14px 2px;
+  font-family: var(--gm-font-display);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--gm-espresso);
+  text-decoration: none;
+  transition: color var(--gm-dur) var(--gm-ease),
+              padding-left var(--gm-dur) var(--gm-ease);
+}
+
+.gm-drawer__link::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.35;
+  transition: opacity var(--gm-dur) var(--gm-ease),
+              transform var(--gm-dur) var(--gm-ease);
+}
+
+.gm-drawer__link:hover,
+.gm-drawer__link:focus-visible,
+.gm-drawer__item.is-active .gm-drawer__link {
+  color: var(--gm-red);
+  padding-left: 8px;
+}
+
+.gm-drawer__link:hover::after,
+.gm-drawer__item.is-active .gm-drawer__link::after {
+  opacity: 1;
+  transform: rotate(45deg) translate(2px, -2px);
+}
+
+/* --- Drawer content --- */
+.gm-drawer__section + .gm-drawer__section {
+  margin-top: 22px;
+}
+
+.gm-drawer__label {
+  margin: 0 0 10px;
+  font-family: var(--gm-font-display);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gm-muted);
+}
+
+.gm-hours {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 16px;
+  font-family: var(--gm-font-body);
+  font-size: 15px;
+  color: var(--gm-espresso);
+}
+
+.gm-hours dt { margin: 0; font-weight: 400; }
+.gm-hours dd { margin: 0; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+
+.gm-contact {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  font-family: var(--gm-font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--gm-espresso);
+}
+
+.gm-contact a {
+  color: var(--gm-espresso);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--gm-dur) var(--gm-ease),
+              border-color var(--gm-dur) var(--gm-ease);
+}
+
+.gm-contact a:hover {
+  color: var(--gm-red);
+  border-bottom-color: currentColor;
+}
+
+.gm-drawer__cta {
+  width: 100%;
+  margin-top: auto;
+}
+
+.gm-social {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gm-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gm-line);
+  border-radius: 50%;
+  color: var(--gm-espresso);
+  font-size: 15px;
+  text-decoration: none;
+  transition: background-color var(--gm-dur) var(--gm-ease),
+              border-color var(--gm-dur) var(--gm-ease),
+              color var(--gm-dur) var(--gm-ease);
+}
+
+.gm-social a:hover {
+  background-color: var(--gm-green);
+  border-color: var(--gm-green);
+  color: var(--gm-white);
+}
+
+/* -------------------------------------------------------------------------
+   8. Accessibility baseline
+   ---------------------------------------------------------------------- */
+.gm-skip-link {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translate(-50%, -200%);
+  z-index: calc(var(--gm-z-drawer) + 1);
+  padding: 12px 20px;
+  border-radius: var(--gm-pill);
+  background-color: var(--gm-espresso-ink);
+  color: var(--gm-white);
+  font-family: var(--gm-font-body);
+  font-size: 14px;
+  text-decoration: none;
+  transition: transform 0.2s var(--gm-ease);
+}
+
+.gm-skip-link:focus {
+  transform: translate(-50%, 0);
+  color: var(--gm-white);
+}
+
+.gm-header :focus-visible,
+.gm-drawer :focus-visible,
+.gm-skip-link:focus-visible {
+  outline: 2px solid var(--gm-green);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.gm-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-header,
+  .gm-brand img,
+  .gm-nav__link,
+  .gm-nav__link::after,
+  .gm-btn,
+  .gm-nav-toggle,
+  .gm-nav-toggle__bars span,
+  .gm-scrim,
+  .gm-drawer,
+  .gm-drawer__link,
+  .gm-drawer__link::after,
+  .gm-social a,
+  .gm-skip-link {
+    transition-duration: 0.01ms !important;
+  }
+}

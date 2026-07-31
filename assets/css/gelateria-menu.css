@@ -1,0 +1,352 @@
+/* ============================================================================
+   Gelateria Bell Italia — Menu Module
+   A self-contained, data-driven menu page. Everything is scoped under
+   `.gmenu` so it never leaks into (or collides with) the Antra theme styles —
+   but the tokens below deliberately mirror Antra's own design system
+   (assets/css/main.css: --tl-ff-heading/body, --tl-color-*) so this page
+   reads as one more page of the same site rather than a bolted-on module.
+
+   Layout strategy: ONE structure at every breakpoint — a vertical category
+   rail flush against the viewport's start edge, plus a product grid beside
+   it that simply gains columns as the viewport widens (1 → 2 → 3 → 4).
+   Nothing is wrapped in a floating card and nothing switches to a different
+   arrangement on desktop; only column count is responsive.
+   Cards are purely informational (name, price) — tapping one does nothing.
+   ========================================================================== */
+
+/* This page has no other stylesheet to reset the UA default body margin —
+   without this, an 8px gap would reappear around the menu regardless of
+   anything set below. */
+body { margin: 0; background: #fff; }
+
+/* ---- Design tokens -------------------------------------------------------- */
+.gmenu {
+  /* Typography — identical stacks to assets/css/main.css (--tl-ff-heading /
+     --tl-ff-body) so headings and body copy render exactly like every other
+     Antra page, including the same fallback behaviour. */
+  --gm-ff-heading: "Cal Sans", serif;
+  --gm-ff-body: "Golos Text", sans-serif;
+
+  /* Palette — lifted straight from Antra's own tokens (heading/body/border/
+     theme-gold), plus the Italian tricolore accents the menu needs: green
+     borders on every card, red for price, ink/black for names. */
+  --gm-ink: #191919;          /* --tl-color-heading-primary */
+  --gm-text: #4d4d52;         /* --tl-color-text-body */
+  --gm-text-soft: #6f6f76;    /* darkened from #8b8b90 — passes WCAG AA at card/meta sizes */
+  --gm-line: #e3e3e8;         /* --tl-color-border-1 */
+  --gm-gold: #caa05c;         /* --tl-color-theme-primary */
+  --gm-white: #ffffff;
+  --gm-surface-2: #f6f6f6;    /* Antra's alternate section background */
+
+  --gm-green: #2f8f46;
+  --gm-green-2: #4cb864;
+  --gm-green-soft: #eaf5ec;
+  --gm-red: #c81e2c;
+  --gm-red-2: #e0394a;
+
+  --gm-shadow-sm: 0 3px 18px rgba(20, 18, 14, .05);
+  --gm-shadow-md: 0 14px 34px rgba(20, 18, 14, .09);
+
+  /* Spacing scale (4px base) */
+  --sp-1: .25rem;  --sp-2: .5rem;  --sp-3: .75rem;
+  --sp-4: 1rem;    --sp-5: 1.25rem; --sp-6: 1.5rem; --sp-7: 2rem;
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+
+  --container-max: 87.5rem;   /* 1400px */
+  --gutter: clamp(1rem, 4vw, 3rem);
+
+  /* Bookmark-tab rail: width drives its own corner radius (radius = half
+     the panel's width), so the two stay in lock-step at every viewport. */
+  --rail-w: clamp(3.5rem, 7vw, 4.75rem);
+
+  display: block;
+  min-height: 100dvh;
+  /* The site header (.gm-header) is position:fixed and clears itself via
+     body { padding-top: var(--gm-header-h) } in gelateria-header.css — this
+     is just the extra breathing room above the rail/grid, not the header's
+     own reserved height (that would double-count it). */
+  padding-top: var(--sp-7);
+  font-family: var(--gm-ff-body);
+  color: var(--gm-text);
+  background-color: var(--gm-white);
+  /* Same decorative language as the rest of the theme: a faint architectural
+     wireframe fading into the white page (compare about.html's hero shape) */
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--gm-white) 82%),
+    url("../img/shapes/hero-bg-shape.png");
+  background-repeat: no-repeat, no-repeat;
+  background-position: top center, top center;
+  background-size: 100% 44rem, min(1700px, 150%) auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.gmenu *,
+.gmenu *::before,
+.gmenu *::after { box-sizing: border-box; }
+
+.gmenu :where(ul) { margin: 0; padding: 0; list-style: none; }
+
+/* ============================================================================
+   Main — category rail + product grid. Flush against the viewport's start
+   edge (no outer margin, no floating card) at every breakpoint; the rail's
+   own shape and the grid's structure never change, only the grid's column
+   count as width allows.
+   ========================================================================== */
+.gmenu-main {
+  display: grid;
+  grid-template-columns: var(--rail-w) 1fr;
+  grid-template-areas: "rail content";
+  align-items: start;
+  padding: var(--sp-4) var(--gutter) var(--sp-6) 0;
+}
+
+/* ----------------------------------------------------------------------
+   Category rail — ONE continuous panel (a single <nav>, single shape),
+   not five separate floating pills. It reads as a bookmark tab clipped to
+   the left edge of the screen: flat/square on the start (left) edge — it
+   runs flush to the viewport, so that corner never shows a curve at all —
+   and generously rounded on the outer (right) edge, with a radius equal to
+   half the panel's own width. Individual categories are plain internal
+   segments separated by hairline dividers and an active-state fill;
+   overflow:hidden on the panel clips that fill to the same curve as the
+   outer shape, so nothing inside ever breaks the single silhouette.
+   ---------------------------------------------------------------------- */
+.gmenu-categories {
+  grid-area: rail;
+  position: sticky;
+  /* Sticks directly under the fixed .gm-header (--gm-header-h) once scrolled,
+     not at the viewport edge. .gmenu's own padding-top above is just
+     breathing room and is already separate from the header's reserved
+     height, so it isn't part of this offset. */
+  top: calc(var(--gm-header-h) + var(--sp-4));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(165deg, #1f7a3d 0%, #14532a 100%);
+  box-shadow: var(--gm-shadow-md);
+
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  border-start-end-radius: calc(var(--rail-w) / 2);
+  border-end-end-radius: calc(var(--rail-w) / 2);
+}
+
+.gmenu-tab {
+  position: relative;
+  isolation: isolate; /* keeps the ::before liquid-fill's z-index:-1 scoped to this tab, not the whole rail */
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, .72);
+  font: inherit;
+  font-family: var(--gm-ff-heading);
+  font-weight: 600;
+  font-size: .78rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  transition: color .25s var(--ease);
+  display: grid;
+  place-items: center;
+  padding: 1.35rem .5rem;
+}
+.gmenu-tab:not(:first-child) { border-block-start: 1px solid rgba(255, 255, 255, .14); }
+.gmenu-tab:hover { color: var(--gm-white); background: rgba(255, 255, 255, .08); }
+
+/* Liquid-fill select state — a single solid-colour "gradient" whose visible
+   slice is carved out by background-position + background-size, both driven
+   by one --p custom property (0% idle → 100% selected). --t staggers the two
+   transitions against each other: forward, the fill slides its full length
+   into place first (position, delay 0) and only then thickens to cover the
+   tab (size, delay .32s); reverse runs the same two beats backwards. Same
+   technique as a CSS "liquid button" hover effect, retargeted from :hover to
+   the tab's aria-selected state and from a wide button (slides on X, grows
+   on Y) to this tall vertical tab (slides on Y, grows on X). */
+.gmenu-tab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  --p: 0%;
+  background: linear-gradient(180deg, var(--gm-red-2) 0%, var(--gm-red) 100%)
+              no-repeat 0% calc(200% - var(--p, 0%)) / var(--p, .15em) 200%;
+  transition: .32s var(--t, 0s), background-position .32s calc(.32s - var(--t, 0s));
+}
+.gmenu-tab[aria-selected="true"] {
+  color: var(--gm-white);
+  font-weight: 700;
+  box-shadow: inset 4px 0 0 var(--gm-red);
+}
+.gmenu-tab[aria-selected="true"]::before { --p: 100%; --t: .32s; }
+.gmenu-tab:focus-visible { outline: 2px solid var(--gm-gold); outline-offset: -3px; }
+
+.gmenu-content {
+  grid-area: content;
+  min-width: 0;
+  padding-inline-start: var(--sp-4);
+}
+
+/* Product grid — same list markup renders 1/2/3/4 columns by viewport.
+   max-width caps line length on ultra-wide screens; since there's no
+   auto-margin, it hugs the rail on the left with any slack on the right. */
+.gmenu-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-3);
+  max-width: var(--container-max);
+}
+@media (min-width: 48em)  { .gmenu-grid { grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); } }
+@media (min-width: 64em)  { .gmenu-grid { grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); } } /* 1024px */
+@media (min-width: 90em)  { .gmenu-grid { grid-template-columns: repeat(4, 1fr); } }                    /* 1440px */
+
+.gmenu-item {
+  position: relative;
+  /* Fresh nodes every category switch (innerHTML is fully replaced), so this
+     plays automatically each time — no JS restart hack needed. Staggered via
+     --i (set per-card in JS) up to a capped delay so a 39-item category
+     doesn't take seconds to finish settling in. */
+  animation: gmCardIn .5s var(--ease) both;
+  animation-delay: calc(min(var(--i, 0), 14) * 35ms);
+}
+@keyframes gmCardIn {
+  from { opacity: 0; transform: translateY(14px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Product card — white surface, green border, name in ink, price in red;
+   same image-left/text-right row at every breakpoint; only the surrounding
+   .gmenu-grid's column count is responsive */
+.gmenu-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.75rem 1fr;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-2);
+  border: 1.75px solid rgba(47, 143, 70, .55);
+  border-radius: var(--radius-card);
+  background: var(--gm-white);
+  box-shadow: var(--gm-shadow-sm);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+
+.gmenu-card__media {
+  inline-size: 4.75rem;
+  block-size: 4.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: radial-gradient(120% 120% at 50% 18%, #ffffff 0%, #dcf1e3 55%, #bfe3cd 100%);
+  box-shadow: inset 0 -.6rem 1rem -.35rem rgba(18, 82, 46, .3);
+}
+.gmenu-card__media svg { inline-size: 82%; block-size: 82%; filter: drop-shadow(0 .3rem .4rem rgba(20, 18, 14, .12)); }
+
+/* Per-category media tint — each category's icon sits on a background that
+   echoes its own accent rather than one green wash for every product type,
+   so Embëlsirat/Kupat/Freskuese/Birra/Bar Kafe read as distinct sections
+   even before you read a label. */
+.gmenu-grid[data-cat="kupat"] .gmenu-card__media {
+  background: radial-gradient(120% 120% at 50% 18%, #ffffff 0%, #dcf1e3 55%, #bfe3cd 100%);
+  box-shadow: inset 0 -.6rem 1rem -.35rem rgba(18, 82, 46, .3);
+}
+.gmenu-grid[data-cat="embelsirat"] .gmenu-card__media {
+  background: radial-gradient(120% 120% at 50% 18%, #fffaf4 0%, #ffe6d2 55%, #f6c9a0 100%);
+  box-shadow: inset 0 -.6rem 1rem -.35rem rgba(140, 74, 26, .28);
+}
+.gmenu-grid[data-cat="freskuese"] .gmenu-card__media {
+  background: radial-gradient(120% 120% at 50% 18%, #f6fcff 0%, #d7effa 55%, #aedcef 100%);
+  box-shadow: inset 0 -.6rem 1rem -.35rem rgba(16, 90, 120, .26);
+}
+.gmenu-grid[data-cat="birra"] .gmenu-card__media {
+  background: radial-gradient(120% 120% at 50% 18%, #fffaf0 0%, #ffe9b0 55%, #f0c869 100%);
+  box-shadow: inset 0 -.6rem 1rem -.35rem rgba(140, 96, 10, .3);
+}
+.gmenu-grid[data-cat="barkafe"] .gmenu-card__media {
+  background: radial-gradient(120% 120% at 50% 18%, #faf5ef 0%, #e6d2b8 55%, #c9a578 100%);
+  box-shadow: inset 0 -.6rem 1rem -.35rem rgba(74, 44, 26, .32);
+}
+
+.gmenu-card__body { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.gmenu-card__name {
+  font-family: var(--gm-ff-heading);
+  font-weight: 600;
+  color: var(--gm-ink);
+  font-size: .94rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gmenu-card__price { margin-top: .25rem; font-family: var(--gm-ff-heading); font-weight: 700; font-size: 1rem; color: var(--gm-red); }
+
+/* Favourite heart — floats over the media corner in both card layouts */
+.gmenu-fav {
+  position: absolute;
+  top: .55rem;
+  right: .55rem;
+  z-index: 1;
+  inline-size: 1.7rem;
+  block-size: 1.7rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: 0 2px 8px rgba(20, 18, 14, .12);
+  color: var(--gm-text-soft);
+  cursor: pointer;
+  transition: color .2s var(--ease), transform .2s var(--ease);
+}
+.gmenu-fav:hover { transform: scale(1.15); }
+.gmenu-fav:focus-visible { outline: 2px solid var(--gm-green); outline-offset: 2px; }
+.gmenu-fav svg { inline-size: 1.05rem; block-size: 1.05rem; }
+.gmenu-fav[aria-pressed="true"] { color: var(--gm-red); }
+.gmenu-fav[aria-pressed="true"] svg { fill: currentColor; }
+
+/* ============================================================================
+   Footer flourish — styled like Antra's own pill-shaped "sub-heading" badge
+   (assets/css/main.css .sub-heading), on top of the same faint wireframe
+   artwork used across the theme's light sections, so the page closes the
+   same way the rest of the site opens its sections.
+   ========================================================================== */
+.gmenu-footer {
+  position: relative;
+  text-align: center;
+  margin: 0;
+  padding: var(--sp-7) var(--sp-4) var(--sp-6);
+  background-image: url("../img/shapes/newsletter-shape.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: min(1400px, 100%) auto;
+}
+.gmenu-footer span {
+  display: inline-block;
+  font-family: var(--gm-ff-heading);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--gm-ink);
+  background: var(--gm-white);
+  border: 1px solid var(--gm-line);
+  border-radius: var(--radius-pill);
+  padding: .6rem 1.4rem;
+}
+
+/* Motion / accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .gmenu *, .gmenu *::before, .gmenu *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
