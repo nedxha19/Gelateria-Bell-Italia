@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="assets/css/swiper.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/gelateria-header.css">
+    <link rel="stylesheet" href="assets/css/gelateria-contact.css">
 </head>
 
 <body>
@@ -210,14 +211,14 @@
                                     <div class="form-group row">
                                         <div class="col-md-6">
                                             <div class="form-item">
-                                                <h4 class="form-title">Emri i Plotë *</h4>
+                                                <label class="form-title" for="fullname">Emri i Plotë <span aria-hidden="true">*</span></label>
                                                 <input type="text" id="fullname" name="fullname" class="form-control"
-                                                    placeholder="Emri juaj" required>
+                                                    placeholder="Emri juaj" autocomplete="name" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-item">
-                                                <h4 class="form-title">Shija e Tortës *</h4>
+                                                <label class="form-title" for="flavor">Shija e Tortës <span aria-hidden="true">*</span></label>
                                                 <input type="text" id="flavor" name="flavor" class="form-control"
                                                     placeholder="P.sh. Çokollatë, Vanilje, Fëstëk" required>
                                             </div>
@@ -226,14 +227,14 @@
                                     <div class="form-group row">
                                         <div class="col-md-6">
                                             <div class="form-item">
-                                                <h4 class="form-title">Numri i Porcioneve *</h4>
-                                                <input type="number" id="portions" name="portions" min="1" class="form-control"
-                                                    placeholder="P.sh. 20" required>
+                                                <label class="form-title" for="portions">Numri i Porcioneve <span aria-hidden="true">*</span></label>
+                                                <input type="number" id="portions" name="portions" class="form-control"
+                                                    placeholder="P.sh. 20" min="1" step="1" inputmode="numeric" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-item">
-                                                <h4 class="form-title">Data *</h4>
+                                                <label class="form-title" for="orderdate">Data <span aria-hidden="true">*</span></label>
                                                 <input type="date" id="orderdate" name="orderdate" class="form-control" required>
                                             </div>
                                         </div>
@@ -241,7 +242,7 @@
                                     <div class="form-group row">
                                         <div class="col-md-12">
                                             <div class="form-item">
-                                                <h4 class="form-title">Ora *</h4>
+                                                <label class="form-title" for="ordertime">Ora <span aria-hidden="true">*</span></label>
                                                 <select id="ordertime" name="ordertime" class="form-control" required>
                                                     <option value="" disabled selected>Zgjidhni orën</option>
                                                     <option value="09:00">09:00</option>
@@ -279,7 +280,7 @@
                                     <div class="form-group row">
                                         <div class="col-md-12">
                                             <div class="form-item message-item">
-                                                <h4 class="form-title">Shkruani Mesazhin *</h4>
+                                                <label class="form-title" for="message">Shkruani Mesazhin</label>
                                                 <textarea id="message" name="message" cols="30" rows="5"
                                                     class="form-control address"
                                                     placeholder="Specifikime ose përshkrime të tjera në lidhje me tortën.."></textarea>

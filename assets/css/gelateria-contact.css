@@ -1,0 +1,85 @@
+/* ============================================================================
+   Gelateria Bell'Italia — Contact page overrides
+   Loaded after main.css. Reuses the theme's own custom properties (see
+   assets/scss/utilities/_colors.scss / _typography.scss) and its "sm"
+   breakpoint (max-width: 767px, assets/scss/utilities/_breakpoints.scss)
+   so the order form stays visually identical to the rest of the site
+   instead of introducing a second design language.
+   ========================================================================== */
+
+/* nice-select (assets/js/vendor/nice-select.js, auto-init in main.js via
+   $("select").niceSelect()) hides the real <select> and inserts a *sibling*
+   <div class="nice-select">, so the .form-control rules in _home-2.scss
+   never reach the widget users actually see. Re-apply them 1:1 here. */
+.request-form-wrap .form-item .nice-select {
+    display: block;
+    float: none;
+    width: 100%;
+    height: auto;
+    padding: 17px 20px;
+    margin-bottom: 30px;
+    background-color: var(--tl-color-common-white);
+    border: none;
+    border-radius: 24px;
+    font-family: var(--tl-ff-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--tl-color-heading-primary);
+}
+
+.request-form-wrap .form-item .nice-select .current {
+    color: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.request-form-wrap .form-item .nice-select::after {
+    right: 20px;
+    border-color: var(--tl-color-theme-primary);
+}
+
+.request-form-wrap .form-item .nice-select .list {
+    width: 100%;
+    max-height: 280px;
+    overflow-y: auto;
+    border-radius: 16px;
+    padding: 8px;
+}
+
+.request-form-wrap .form-item .nice-select .option {
+    border-radius: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.request-form-wrap .form-item .nice-select .option:hover,
+.request-form-wrap .form-item .nice-select .option.selected.focus {
+    background-color: rgba(202, 160, 92, .12);
+}
+
+/* .request-item-wrap is a plain, non-wrapping flex row in the theme
+   (display:flex; align-items:center — see _home-2.scss), so the address
+   block and the contact block overflow the card once they + their 65px
+   gap no longer fit a narrow phone. Let it wrap and shrink the gap fluidly
+   instead of a fixed value that only works above one exact width. */
+.request-content .request-item-wrap {
+    flex-wrap: wrap;
+    row-gap: 24px;
+    column-gap: clamp(24px, 6vw, 65px);
+}
+
+/* A fixed 420px height (see _contact.scss) crops the photo differently at
+   every column width once the layout is fluid; aspect-ratio keeps the same
+   crop proportionally at any size instead of guessing a height per
+   breakpoint. */
+.request-content .contact-img {
+    height: auto;
+    aspect-ratio: 640 / 420;
+}
+
+@media (max-width: 767px) {
+    .request-form-wrap .form-item .nice-select {
+        padding: 14px 18px;
+        margin-bottom: 20px;
+    }
+}

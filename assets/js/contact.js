@@ -1,52 +1,65 @@
 /*
 *
-* Contact JS — sends the order form straight to WhatsApp instead of a mail backend.
+* Contact JS — sends the cake-order form straight to WhatsApp, no backend.
 * @ThemeEaster / Gelateria Bell'Italia
 */
-$(function() {
-    var WHATSAPP_NUMBER = "355692079202";
+$(function () {
+    const WHATSAPP_NUMBER = '355692079202';
 
-    var form = $('#ajax_contact');
-    if (!form.length) return;
+    const $form = $('#ajax_contact');
+    if (!$form.length) return;
 
-    var dateInput = $('#orderdate');
-    if (dateInput.length) {
-        var today = new Date().toISOString().split('T')[0];
-        dateInput.attr('min', today);
+    const $orderDate = $('#orderdate');
+    const $orderTime = $('#ordertime');
+
+    // Stop customers picking a pickup date in the past.
+    if ($orderDate.length) {
+        $orderDate.attr('min', new Date().toISOString().split('T')[0]);
     }
 
-    function formatDate(value) {
-        if (!value) return '';
-        var parts = value.split('-'); // yyyy-mm-dd
-        if (parts.length !== 3) return value;
-        return parts[2] + '/' + parts[1] + '/' + parts[0];
+    function formatDate(isoValue) {
+        const [year, month, day] = isoValue.split('-');
+        return day && month && year ? `${day}/${month}/${year}` : isoValue;
     }
 
-    form.on('submit', function(event) {
+    function buildMessage(fields) {
+        const lines = [
+            "Përshëndetje! Dëshiroj të porosis një tortë.",
+            `Emri: ${fields.fullname}`,
+            `Shija e Tortës: ${fields.flavor}`,
+            `Numri i Porcioneve: ${fields.portions}`,
+            `Data: ${formatDate(fields.orderdate)}`,
+            `Ora: ${fields.ordertime}`
+        ];
+        if (fields.message) lines.push(`Specifikime: ${fields.message}`);
+        return lines.join('\n');
+    }
+
+    $form.on('submit', function (event) {
         event.preventDefault();
 
-        var fullname = $('#fullname').val().trim();
-        var flavor = $('#flavor').val().trim();
-        var portions = $('#portions').val().trim();
-        var orderdate = formatDate($('#orderdate').val());
-        var ordertime = $('#ordertime').val();
-        var message = $('#message').val().trim();
-
-        var lines = [
-            'Përshëndetje! Dëshiroj të porosis një tortë.',
-            'Emri: ' + fullname,
-            'Shija e Tortës: ' + flavor,
-            'Numri i Porcioneve: ' + portions,
-            'Data: ' + orderdate,
-            'Ora: ' + ordertime
-        ];
-        if (message) {
-            lines.push('Specifikime: ' + message);
+        // nice-select hides the real <select>, and browsers skip native
+        // constraint validation on hidden fields — so `required` alone
+        // never actually blocks an empty "Ora" from reaching this handler.
+        // Every other field is still visible, so the browser already
+        // enforced its own `required` before this listener ever ran.
+        if (!$orderTime.val()) {
+            $orderTime.niceSelect('open');
+            return;
         }
 
-        var text = encodeURIComponent(lines.join('\n'));
-        var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + text;
+        const fields = {
+            fullname: $('#fullname').val().trim(),
+            flavor: $('#flavor').val().trim(),
+            portions: $('#portions').val().trim(),
+            orderdate: $orderDate.val(),
+            ordertime: $orderTime.val(),
+            message: $('#message').val().trim()
+        };
 
+        const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(fields))}`;
         window.open(url, '_blank', 'noopener');
+        $form[0].reset();
+        $orderTime.niceSelect('update');
     });
 });
