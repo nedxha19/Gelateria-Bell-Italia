@@ -1,55 +1,52 @@
 /*
 *
-* Contact JS
-* @ThemeEaster
+* Contact JS — sends the order form straight to WhatsApp instead of a mail backend.
+* @ThemeEaster / Gelateria Bell'Italia
 */
 $(function() {
-    // Get the form.
+    var WHATSAPP_NUMBER = "355692079202";
+
     var form = $('#ajax_contact');
+    if (!form.length) return;
 
-    // Get the messages div.
-    var formMessages = $('#form-messages');
+    var dateInput = $('#orderdate');
+    if (dateInput.length) {
+        var today = new Date().toISOString().split('T')[0];
+        dateInput.attr('min', today);
+    }
 
-    // Set up an event listener for the contact form.
-	$(form).submit(function(event) {
-		// Stop the browser from submitting the form.
-		event.preventDefault();
+    function formatDate(value) {
+        if (!value) return '';
+        var parts = value.split('-'); // yyyy-mm-dd
+        if (parts.length !== 3) return value;
+        return parts[2] + '/' + parts[1] + '/' + parts[0];
+    }
 
-		// Serialize the form data.
-		var formData = $(form).serialize();
-		// Submit the form using AJAX.
-		$.ajax({
-			type: 'POST',
-			url: $(form).attr('action'),
-			data: formData
-		})
-		.done(function(response) {
-			// Make sure that the formMessages div has the 'success' class.
-			$(formMessages).removeClass('alert-danger');
-			$(formMessages).addClass('alert-success');
+    form.on('submit', function(event) {
+        event.preventDefault();
 
-			// Set the message text.
-			$(formMessages).text(response);
+        var fullname = $('#fullname').val().trim();
+        var flavor = $('#flavor').val().trim();
+        var portions = $('#portions').val().trim();
+        var orderdate = formatDate($('#orderdate').val());
+        var ordertime = $('#ordertime').val();
+        var message = $('#message').val().trim();
 
-			// Clear the form.
-			$('#fullname').val('');
-			$('#email').val('');
-			$('#phone').val('');
-			$('#message').val('');
-		})
-		.fail(function(data) {
-			// Make sure that the formMessages div has the 'error' class.
-			$(formMessages).removeClass('alert-success');
-			$(formMessages).addClass('alert-danger');
+        var lines = [
+            'Përshëndetje! Dëshiroj të porosis një tortë.',
+            'Emri: ' + fullname,
+            'Shija e Tortës: ' + flavor,
+            'Numri i Porcioneve: ' + portions,
+            'Data: ' + orderdate,
+            'Ora: ' + ordertime
+        ];
+        if (message) {
+            lines.push('Specifikime: ' + message);
+        }
 
-			// Set the message text.
-			if (data.responseText !== '') {
-				$(formMessages).text(data.responseText);
-			} else {
-				$(formMessages).text('Oops! An error occured and your message could not be sent.');
-			}
-		});
+        var text = encodeURIComponent(lines.join('\n'));
+        var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + text;
 
-	});
-
+        window.open(url, '_blank', 'noopener');
+    });
 });

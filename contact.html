@@ -206,36 +206,73 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="request-form-wrap">
-                                <form action="mail.php" method="post" id="ajax_contact" class="form-horizontal">
+                                <form id="ajax_contact" class="form-horizontal">
                                     <div class="form-group row">
                                         <div class="col-md-6">
                                             <div class="form-item">
                                                 <h4 class="form-title">Emri i Plotë *</h4>
                                                 <input type="text" id="fullname" name="fullname" class="form-control"
-                                                    placeholder="Emri juaj">
+                                                    placeholder="Emri juaj" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-item">
-                                                <h4 class="form-title">Telefoni *</h4>
-                                                <input type="text" id="phone" name="phone" class="form-control"
-                                                    placeholder="Numri juaj i telefonit">
+                                                <h4 class="form-title">Shija e Tortës *</h4>
+                                                <input type="text" id="flavor" name="flavor" class="form-control"
+                                                    placeholder="P.sh. Çokollatë, Vanilje, Fëstëk" required>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <div class="col-md-6">
                                             <div class="form-item">
-                                                <h4 class="form-title">Adresa Email *</h4>
-                                                <input type="text" id="email" name="email" class="form-control"
-                                                    placeholder="Adresa juaj email">
+                                                <h4 class="form-title">Numri i Porcioneve *</h4>
+                                                <input type="number" id="portions" name="portions" min="1" class="form-control"
+                                                    placeholder="P.sh. 20" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-item">
-                                                <h4 class="form-title">Lloji i Porosisë *</h4>
-                                                <input type="text" id="service" name="service" class="form-control"
-                                                    placeholder="Tortë, katering, tjetër">
+                                                <h4 class="form-title">Data *</h4>
+                                                <input type="date" id="orderdate" name="orderdate" class="form-control" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <div class="form-item">
+                                                <h4 class="form-title">Ora *</h4>
+                                                <select id="ordertime" name="ordertime" class="form-control" required>
+                                                    <option value="" disabled selected>Zgjidhni orën</option>
+                                                    <option value="09:00">09:00</option>
+                                                    <option value="09:30">09:30</option>
+                                                    <option value="10:00">10:00</option>
+                                                    <option value="10:30">10:30</option>
+                                                    <option value="11:00">11:00</option>
+                                                    <option value="11:30">11:30</option>
+                                                    <option value="12:00">12:00</option>
+                                                    <option value="12:30">12:30</option>
+                                                    <option value="13:00">13:00</option>
+                                                    <option value="13:30">13:30</option>
+                                                    <option value="14:00">14:00</option>
+                                                    <option value="14:30">14:30</option>
+                                                    <option value="15:00">15:00</option>
+                                                    <option value="15:30">15:30</option>
+                                                    <option value="16:00">16:00</option>
+                                                    <option value="16:30">16:30</option>
+                                                    <option value="17:00">17:00</option>
+                                                    <option value="17:30">17:30</option>
+                                                    <option value="18:00">18:00</option>
+                                                    <option value="18:30">18:30</option>
+                                                    <option value="19:00">19:00</option>
+                                                    <option value="19:30">19:30</option>
+                                                    <option value="20:00">20:00</option>
+                                                    <option value="20:30">20:30</option>
+                                                    <option value="21:00">21:00</option>
+                                                    <option value="21:30">21:30</option>
+                                                    <option value="22:00">22:00</option>
+                                                    <option value="22:30">22:30</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -245,7 +282,7 @@
                                                 <h4 class="form-title">Shkruani Mesazhin *</h4>
                                                 <textarea id="message" name="message" cols="30" rows="5"
                                                     class="form-control address"
-                                                    placeholder="Na tregoni shijen, madhësinë dhe datën kur ju nevojitet.."></textarea>
+                                                    placeholder="Specifikime ose përshkrime të tjera në lidhje me tortën.."></textarea>
                                             </div>
                                         </div>
                                     </div>
