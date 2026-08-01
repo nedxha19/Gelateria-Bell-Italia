@@ -7,54 +7,26 @@
    instead of introducing a second design language.
    ========================================================================== */
 
-/* nice-select (assets/js/vendor/nice-select.js, auto-init in main.js via
-   $("select").niceSelect()) hides the real <select> and inserts a *sibling*
-   <div class="nice-select">, so the .form-control rules in _home-2.scss
-   never reach the widget users actually see. Re-apply them 1:1 here. */
-.request-form-wrap .form-item .nice-select {
-    display: block;
-    float: none;
-    width: 100%;
-    height: auto;
-    padding: 17px 20px;
-    margin-bottom: 30px;
-    background-color: var(--tl-color-common-white);
-    border: none;
-    border-radius: 24px;
-    font-family: var(--tl-ff-body);
-    font-size: 16px;
-    line-height: 1.5;
-    color: var(--tl-color-heading-primary);
+/* The "Ora" <select> opts out of nice-select (see assets/js/main.js) —
+   28 time slots don't suit a plugin built for short, static lists, and it
+   already carries .form-control, so it only needs its native arrow swapped
+   for one that matches the theme instead of nice-select's whole DOM/CSS
+   replacement. */
+.request-form-wrap select.native-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 48px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23CAA05C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+    background-size: 16px;
+    cursor: pointer;
 }
 
-.request-form-wrap .form-item .nice-select .current {
-    color: inherit;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.request-form-wrap .form-item .nice-select::after {
-    right: 20px;
-    border-color: var(--tl-color-theme-primary);
-}
-
-.request-form-wrap .form-item .nice-select .list {
-    width: 100%;
-    max-height: 280px;
-    overflow-y: auto;
-    border-radius: 16px;
-    padding: 8px;
-}
-
-.request-form-wrap .form-item .nice-select .option {
-    border-radius: 10px;
-    padding-left: 12px;
-    padding-right: 12px;
-}
-
-.request-form-wrap .form-item .nice-select .option:hover,
-.request-form-wrap .form-item .nice-select .option.selected.focus {
-    background-color: rgba(202, 160, 92, .12);
+.request-form-wrap select.native-select:focus-visible {
+    outline: 2px solid var(--tl-color-theme-primary);
+    outline-offset: 2px;
 }
 
 /* .request-item-wrap is a plain, non-wrapping flex row in the theme
@@ -75,11 +47,4 @@
 .request-content .contact-img {
     height: auto;
     aspect-ratio: 640 / 420;
-}
-
-@media (max-width: 767px) {
-    .request-form-wrap .form-item .nice-select {
-        padding: 14px 18px;
-        margin-bottom: 20px;
-    }
 }

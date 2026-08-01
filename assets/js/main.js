@@ -367,8 +367,11 @@
       },
     );
 
-    // Nice Select Js
-    $("select").niceSelect();
+    // Nice Select Js (long/dynamic lists opt out via .native-select and
+    // keep their plain, natively-styled <select> instead — nice-select's
+    // injected markup and open/close animation don't cope well with more
+    // than a handful of options).
+    $("select:not(.native-select)").niceSelect();
 
     function featureHoverGSAP(options) {
       const settings = Object.assign(

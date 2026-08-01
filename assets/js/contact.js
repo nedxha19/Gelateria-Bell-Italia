@@ -38,16 +38,6 @@ $(function () {
     $form.on('submit', function (event) {
         event.preventDefault();
 
-        // nice-select hides the real <select>, and browsers skip native
-        // constraint validation on hidden fields — so `required` alone
-        // never actually blocks an empty "Ora" from reaching this handler.
-        // Every other field is still visible, so the browser already
-        // enforced its own `required` before this listener ever ran.
-        if (!$orderTime.val()) {
-            $orderTime.niceSelect('open');
-            return;
-        }
-
         const fields = {
             fullname: $('#fullname').val().trim(),
             flavor: $('#flavor').val().trim(),
@@ -60,6 +50,5 @@ $(function () {
         const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(fields))}`;
         window.open(url, '_blank', 'noopener');
         $form[0].reset();
-        $orderTime.niceSelect('update');
     });
 });
